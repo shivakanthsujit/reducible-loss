@@ -1,0 +1,16 @@
+[tool.isort]
+profile = "black"
+skip = [".gitignore", "logs", "out", "wandb", "scores", "__pycache__"]
+
+[tool.black]
+line-length = 127
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | wandb
+  | logs
+  | __pycache__
+)/
+'''

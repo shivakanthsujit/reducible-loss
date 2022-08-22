@@ -1,0 +1,10 @@
+atari-py
+opencv-python
+plotly
+torch
+tqdm
+addict
+torchvision
+numpy
+matplotlib
+pandas

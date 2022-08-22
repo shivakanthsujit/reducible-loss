@@ -1,0 +1,35 @@
+defaults:
+    - agent: sac
+
+env: cheetah_run
+
+# this needs to be specified manually
+experiment: default
+
+num_train_steps: 1e6
+replay_buffer_capacity: ${num_train_steps}
+
+num_seed_steps: 5000
+
+eval_frequency: 10000
+num_eval_episodes: 10
+
+device: cuda
+
+# logger
+log_frequency: 5000
+log_save_tb: true
+
+# video recorder
+save_video: true
+
+logdir: ./logs
+seed: 1
+
+use_per_buffer: False
+
+# hydra configuration
+hydra:
+    name: ${env}
+    run:
+        dir: ${logdir}/${env}/${experiment}/seed${seed}
