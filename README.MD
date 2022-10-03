@@ -51,7 +51,7 @@ Each codebase contains the instructions required to set it up from the original 
 
 ### Plotting
 
-Each `scripts` folder has a `plot.sh` that can be run to produce the main plots from the paper.
+Each `scripts` folder has a `plot.sh` that can be run to produce the main plots from the paper. There is a `results` folder for each benchmark that contains the figures from the paper as well as data that can be used to recreate the figure. There is a CSV with final scores of each environment and benchmark presented in the paper.
 
 ## Acknowledgements
 
