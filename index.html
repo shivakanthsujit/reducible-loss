@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="ReLo proposes a prioritization scheme for experience replay based on the potential for loss reduction of a data point.">
+  <meta name="keywords" content="experience replay, per, reinforcement learning, RL">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReLo: Reducible Loss for RL</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript"
+    src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="http://shivakanthsujit.github.io/">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+    </div>
+
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Prioritizing Samples in Reinforcement Learning with Reducible Loss</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="http://shivakanthsujit.github.io/">Shivakanth Sujit</a><sup>12</sup>,</span>
+            <span class="author-block">
+              <a href="https://somjit77.github.io/">Somjit Nath</a><sup>12</sup>,</span>
+            <span class="author-block">
+              <a href="https://phbraga.com/">Pedro Braga</a><sup>123</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://saebrahimi.github.io/">Samira Ebrahimi Kahou</a><sup>12</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>ÉTS Montréal,</span>
+            <span class="author-block"><sup>2</sup>Mila, Quebec AI Institute,</span>
+            <span class="author-block"><sup>3</sup>Universidade Federal de Pernambuco,</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2208.10483"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2208.10483"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Tweet Link. -->
+              <span class="link-block">
+                <a href="https://twitter.com/ShivaSujit/status/1569674176931176448"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-twitter"></i>
+                  </span>
+                  <span>Tweet</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/shivakanthsujit/reducible-loss"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <span class="link-block">
+                <a href="https://drive.google.com/file/d/1ug2Z1GqWDpYIEvdx1m9BVImm0fphhJvK/view?usp=sharing"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Slides</span>
+                  </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <!-- <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="https://homes.cs.washington.edu/~kpar/nerfies/videos/teaser.mp4"
+                type="video/mp4">
+      </video> -->
+      <img id="teaser" src="static/images/agg.jpg">
+      <h2 class="subtitle has-text-centered">
+        ReLo leads to a clear improvement in performance over vanilla PER over diverse tasks and environments (aggregated over 21 environments and 5 seeds).
+      </h2>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Most reinforcement learning algorithms take advantage of an experience 
+            replay buffer to repeatedly train on samples the agent has observed in the past. 
+            This prevents catastrophic forgetting, however simply assigning equal importance to 
+            each of the samples is a naive strategy. 
+          </p>
+          <p>
+            We present the first method capable of photorealistically reconstructing a non-rigidly
+            deforming scene using photos/videos captured casually from mobile phones.
+          </p>
+          <p>
+            In this paper, we propose a method to prioritize samples based on how much we can learn 
+            from a sample. We define the learn-ability of a sample as the steady decrease of the 
+            training loss associated with this sample over time. We develop an algorithm to prioritize 
+            samples with high learn-ability, while assigning lower priority to those that are hard-to-learn, 
+            typically caused by noise or stochasticity.
+          </p>
+          <p>
+            We empirically show that our method is more robust than random sampling and also better 
+            than just prioritizing with respect to the training loss, i.e. the temporal difference 
+            loss, which is used in vanilla prioritized experience replay. 
+          </p>
+          <p>
+            Across continous and discrete tasks, ReLo shows consistent improvements over vanilla 
+            PER, while also producing agents that have lower TD error compared to random sampling 
+            and vanilla PER. ReLo can be applied to <b>any</b> off policy Q learning method with 
+            minimal changes to existing codebases
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Video</h2>
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/MrKrnHhk8IA?rel=0&amp;showinfo=0"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Motivation</h2>
+    <div class="columns is-centered">
+      <div class="column is-fullwidth">
+        <p>
+          Vanilla PER focuses on data points with high TD loss, but such points could have 
+          high loss because they are noisy or 
+          not learnable by the model. Instead of prioritization based on the TD error, we 
+          propose that the agent should 
+          focus on samples that have higher reducible
+          TD error, using a measure of how much the TD error
+          can be potentially decreased. This is better because it means that the algorithm can 
+          avoid repeatedly sampling points that the agent has been unable to learn from and can focus 
+          on minimizing error on points that are learnable, thereby improving sample
+          efficiency. Motivated by prior work in supervised learning through the 
+          <a href="https://arxiv.org/abs/2206.07137">RHO Loss</a>, we propose a scheme of 
+          prioritization tailored to the RL
+           problem.
+        </p>
+      </div>
+    </div>
+
+    
+    <h2 class="title is-3">Reducible Loss</h3>
+    <p>
+      Mindermann et al. propose using a hold out model trained on validation data to provide an
+      estimate of the reduction in loss that can be acheived by training on a sample. However, 
+      the concepts of a hold-out dataset or model are not well defined in the RL paradigm. 
+      In Q learning based RL methods, a good proxy for the hold-out model is the target
+      network as it is only periodically updated
+      with the online model parameters. It retains the performance of the agent on 
+      older data which are trained with outdated policies. 
+      </p>
+      <p>
+      In this
+      way, we define the Reducible Loss (ReLo) for RL as the difference between the loss of the data point
+      with respect to the online network (with parameters $\theta~$) and the target network (with
+      parameters $\theta_{tgt}$). So the Reducible Loss (ReLo) can be computed as
+      $$ReLo = L_\theta + L_{\theta_{tgt}}$$
+    </p>
+
+    <h2 class="title is-3">How does ReLo compare with PER</h3>
+    <p>
+      Data points that were not important under PER, i.e. they have low $L_\theta$, will also
+      remain unimportant in ReLo. If $L_\theta$ is low, then the difference between online and 
+      target losses, i.e.e ReLo will also be low.
+      So we retain the desirable behavior of PER, which is to not repeatedly sample points
+      that have already been learned.
+      However, there is a difference in sampling points that have high TD error. PER would assign high
+      priority to data points with high TD error, regardless of whether or not those data points are noisy
+      or unlearnable. Hence its priority should be reduced since there might be other data points that are worth
+      sampling more because they have useful information which would enable faster learning. The ReLo
+      of such a point would be low because both $L_\theta$ and $L_{\theta_{tgt}}$ would be high. 
+      In case a data point is
+      forgotten, then the $L_\theta$ would be higher than $L_{\theta_{tgt}}$ , and the ReLo would ensure that these points are
+      revisited.
+    </p>
+
+    <br>
+    <h2 class="title is-3">Algorithm</h3>
+      Below is a detailed algorithm for adding ReLo to any exisiting off policy Q learning
+      RL method. However, if the method already uses PER, then only a one line change is needed.
+      Calculate the difference between the TD error of the online and the target network and clip 
+      it to the range $(0, \infty)$ and set this as the priority.  
+      <br>
+      <img id="teaser" src="static/images/algo.png">
+
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Results</h2>
+    <div class="columns is-centered">
+
+      <!-- DMC -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-4">DM Control</h2>
+          <p>
+            In continous control tasks, ReLo improves performance of the baseline SAC and vanilla
+            PER with SAC. 
+          </p>
+          <img id="teaser" src="static/images/agg_dmc_iqm.jpg">
+        </div>
+      </div>
+      <!--/ DMC. -->
+
+      <!-- MinATar. -->
+      <div class="column">
+        <h2 class="title is-4">MinAtar</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              In the MinAtar benchmark, while naive prioritization hurts performance, ReLo matches
+              or exceeds the baseline.
+            </p>
+            <img id="teaser" src="static/images/agg_minatar_iqm.jpg">
+          </div>
+        </div>
+      </div>
+      <!--/ MinAtar. -->
+      
+      <!-- Atari. -->
+      <!-- <div class="column">
+        <h2 class="title is-4">Atari</h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              ReLo was evaluated in the resource constrained
+              setting of ALE with a training budget of 2M frames and shows an improvement in performance
+              over Rainbow.
+            </p>
+            <img id="teaser" src="static/images/agg_atari_iqm.jpg">
+          </div>
+        </div>
+      </div> -->
+      <!--/ Atari. -->
+    </div>
+      
+    <!-- Atari. -->
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h3 class="title is-4">Atari benchmark</h3>
+        <div class="content has-text-justified">
+          <p>
+            We compared ReLo on a subset of environments from the Arcade Learning Environment,
+            using Rainbow as a baseline. The methods were evaluated in the resource constrained
+            setting with a training budget of 2M frames. ReLo shows an improvement in performance
+            over Rainbow in this setting.
+          </p>
+          <img id="teaser" width="50%" src="static/images/agg_atari_iqm.jpg">
+        </div>
+      </div>
+    </div>
+    <!--/ Atari. -->
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{sujit2022prioritizing,
+      title   = {Prioritizing Samples in Reinforcement Learning with Reducible Loss},
+      author  = {Shivakanth Sujit and Somjit Nath and Pedro H. M. Braga and Samira Ebrahimi Kahou},
+      year    = {2022},
+      journal = {arXiv preprint arXiv: Arxiv-2208.10483}
+    }</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="content">
+        <p>
+          Website template is borrowed from <a
+            href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
